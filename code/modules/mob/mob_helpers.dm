@@ -60,11 +60,13 @@
 /proc/isvaurca(A)
 	if(istype(A, /mob/living/carbon/human))
 		switch(A:get_species())
-			if ("Vaurca Worker")
+			if("Vaurca Worker")
 				return 1
 			if("Vaurca Warrior")
 				return 1
 			if("Vaurca Breeder")
+				return 1
+			if("Vaurca Warform")
 				return 1
 			if("V'krexi")
 				return 1
@@ -161,6 +163,12 @@ proc/getsensorlevel(A)
 		return mind && mind.assigned_role == "Space Wizard"
 	else
 		return mind && (mind.assigned_role == "Space Wizard" || mind.assigned_role == "Apprentice")
+
+/mob/proc/is_berserk()
+	return FALSE
+
+/mob/proc/is_pacified()
+	return FALSE
 
 /*
 	Miss Chance

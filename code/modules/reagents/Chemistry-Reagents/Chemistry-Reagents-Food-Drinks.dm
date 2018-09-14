@@ -288,7 +288,7 @@
 	*/
 
 	if(volume >= 3)
-		T.wet_floor(2)
+		T.wet_floor(WET_TYPE_LUBE,volume)
 
 /datum/reagent/nutriment/triglyceride/oil/initialize_data(var/newdata) // Called when the reagent is created.
 	..()
@@ -471,6 +471,24 @@
 	if(M.nutrition < 0)
 		M.nutrition = 0
 
+/datum/reagent/nutriment/barbecue
+	name = "Barbecue Sauce"
+	id = "barbecue"
+	description = "Barbecue sauce for barbecues and long shifts."
+	taste_description = "barbecue"
+	reagent_state = LIQUID
+	nutriment_factor = 5
+	color = "#4F330F"
+
+/datum/reagent/nutriment/garlicsauce
+	name = "Garlic Sauce"
+	id = "garlicsauce"
+	description = "Garlic sauce, perfect for spicing up a plate of garlic."
+	taste_description = "garlic"
+	reagent_state = LIQUID
+	nutriment_factor = 4
+	color = "#d8c045"
+
 /* Non-food stuff like condiments */
 
 /datum/reagent/sodiumchloride
@@ -606,7 +624,7 @@
 		if (!mouth_covered && (eyes_covered & EYES_PROTECTED))
 			message = "<span class='warning'>Your [eye_protection] protects your eyes from the pepperspray!</span>"
 		else if (eyes_covered & EYES_MECH)
-			message = "<span class='warning'>Your mechanical eyes are invulnurable pepperspray!</span>"
+			message = "<span class='warning'>Your mechanical eyes are invulnurable to pepperspray!</span>"
 	else
 		message = "<span class='warning'>The pepperspray gets in your eyes!</span>"
 		if(mouth_covered)
@@ -623,8 +641,8 @@
 		message = "<span class='danger'>Your face and throat burn!</span>"
 		if(prob(25))
 			M.custom_emote(2, "[pick("coughs!","coughs hysterically!","splutters!")]")
-		M.Stun(5)
-		M.Weaken(5)
+		M.apply_effect(40, AGONY, 0)
+
 #undef EYES_PROTECTED
 #undef EYES_MECH
 
@@ -862,6 +880,28 @@
 	glass_name = "glass of earthen-root juice"
 	glass_desc = "Juice extracted from earthen-root, a plant native to Adhomai."
 
+/datum/reagent/drink/juice/garlic
+	name = "Garlic Juice"
+	id = "garlicjuice"
+	description = "Who would even drink this?"
+	taste_description = "garlic"
+	nutrition = 1
+	color = "#eeddcc"
+
+	glass_name = "glass of garlic juice"
+	glass_desc = "Who would even drink juice from garlic?"
+
+/datum/reagent/drink/juice/onion
+	name = "Onion Juice"
+	id = "onionjuice"
+	description = "Juice from an onion, for when you need to cry."
+	taste_description = "onion"
+	nutrition = 1
+	color = "#ffeedd"
+
+	glass_name = "glass of onion juice"
+	glass_desc = "Juice from an onion, for when you need to cry."
+
 // Everything else
 
 /datum/reagent/drink/milk
@@ -917,9 +957,23 @@
 	glass_name = "cup of tea"
 	glass_desc = "Tasty black tea, it has antioxidants, it's good for you!"
 
+	unaffected_species = IS_MACHINE
+	var/last_taste_time = -100
+
 /datum/reagent/drink/tea/affect_ingest(var/mob/living/carbon/M, var/alien, var/removed)
 	..()
 	M.adjustToxLoss(-0.5 * removed)
+
+
+/datum/reagent/drink/tea/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
+	if(alien == IS_DIONA)
+		if(last_taste_time + 800 < world.time) // Not to spam message
+			to_chat(M, "<span class='danger'>Your body withers as you feel slight pain throughout.</span>")
+			last_taste_time = world.time
+		metabolism = REM * 0.33
+		M.adjustToxLoss(1.5 * removed)
+	else
+		M.adjustToxLoss(-0.5 * removed)
 
 /datum/reagent/drink/tea/icetea
 	name = "Iced Tea"
@@ -3584,3 +3638,134 @@
 	glass_name = "glass of Crocodile Guwan"
 	glass_desc = "The smell says no, but the pretty colors say yes."
 
+//ZZZZOOOODDDDAAAAA
+
+/datum/reagent/drink/zorasoda
+	name = "Zo'ra Soda Cherry"
+	id = "zora_cherry"
+	description = "Zo'ra Soda, cherry edition. All good drinks come in cherry."
+	color = "#102000"
+	adj_temp = -5
+	adj_sleepy = -2
+	caffeine = 1
+	taste_description = "electric cherry"
+
+/datum/reagent/drink/zorasoda/phoron
+	name = "Zo'ra Soda Phoron Passion"
+	id = "zora_phoron"
+	description = "Reported to taste nothing like phoron, but everything like grapes."
+	color = "#863333"
+	adj_temp = -5
+	adj_sleepy = -2
+	caffeine = 1
+	taste_description = "electric grape"
+
+/datum/reagent/drink/zorasoda/kois
+	name = "Zo'ra Soda K'ois Twist"
+	id = "zora_kois"
+	description = "Whoever approved this in marketing needs to be drawn and quartered."
+	color = "#dcd9cd"
+	adj_temp = -5
+	adj_sleepy = -2
+	caffeine = 1
+	taste_description = "sugary cabbage"
+
+/datum/reagent/drink/zorasoda/kois/affect_ingest(var/mob/living/carbon/M, var/alien, var/removed)
+	..()
+	M.make_jittery(5)
+
+/datum/reagent/drink/zorasoda/hozm
+	name = "Zo'ra Soda High Octane Zorane Might"
+	id = "zora_hozm"
+	description = "It feels like someone is just driving a freezing cold spear through the bottom of your mouth."
+	color = "#365000"
+	adj_temp = -5
+	adj_sleepy = -3
+	caffeine = 2
+	taste_description = "a full-body bite into an acidic lemon"
+
+/datum/reagent/drink/zorasoda/hozm/affect_ingest(var/mob/living/carbon/M, var/alien, var/removed)
+	..()
+	M.make_jittery(20)
+	M.dizziness += 5
+	M.drowsyness = 0
+
+/datum/reagent/drink/zorasoda/venomgrass
+	name = "Zo'ra Soda Sour Venom Grass"
+	id = "zora_venom"
+	description = "The 'diet' version of High Energy Zorane Might, still tastes like a cloud of stinging polytrinic bees."
+	color = "#100800"
+	adj_temp = -5
+	adj_sleepy = -3
+	caffeine = 0.8
+	taste_description = "fizzy nettles"
+
+/datum/reagent/drink/zorasoda/venomgrass/affect_ingest(var/mob/living/carbon/M, var/alien, var/removed)
+	..()
+	M.make_jittery(5)
+
+/datum/reagent/drink/zorasoda/klax
+	name = "Klaxan Energy Crush"
+	id = "zora_klax"
+	description = "An orange, cream soda. It's a wonder it got here."
+	color = "#E78108"
+	adj_temp = -5
+	adj_sleepy = -3
+	caffeine = 1
+	unaffected_species = IS_MACHINE
+	taste_description = "orange cream"
+
+/datum/reagent/drink/zorasoda/klax/affect_ingest(var/mob/living/carbon/M, var/alien, var/removed)
+	..()
+	M.make_jittery(5)
+
+/datum/reagent/drink/zorasoda/cthur
+	name = "C'thur Rockin' Raspberry"
+	id = "zora_cthur"
+	description = "A raspberry concoction you're pretty sure is already on recall."
+	color = "#0000CD"
+	adj_temp = -5
+	adj_sleepy = -3
+	caffeine = 1
+	taste_description = "flat raspberry"
+
+/datum/reagent/drink/zorasoda/cthur/affect_ingest(var/mob/living/carbon/M, var/alien, var/removed)
+	..()
+	M.make_jittery(15)
+
+/datum/reagent/drink/zorasoda/drone
+	name = "Drone Fuel"
+	id = "zora_drone"
+	description = "It's thick as syrup and smells of gas. Why."
+	color = "#31004A"
+	adj_temp = -5
+	adj_sleepy = -3
+	taste_description = "viscous cola"
+
+/datum/reagent/drink/zorasoda/drone/affect_ingest(var/mob/living/carbon/M, var/alien, var/removed)
+	if(alien == IS_VAURCA)
+		M.add_chemical_effect(CE_SPEEDBOOST, 1)
+		M.add_chemical_effect(CE_BLOODRESTORE, 2 * removed)
+		M.make_jittery(5)
+	else
+		if (prob(10+dose))
+			M << pick("You feel nauseous", "Ugghh....", "Your stomach churns uncomfortably", "You feel like you're about to throw up", "You feel queasy","You feel pressure in your abdomen")
+
+		if (prob(dose))
+			M.vomit()
+
+/datum/reagent/drink/zorasoda/jelly
+	name = "Royal Jelly"
+	id = "zora_jelly"
+	description = "It looks of mucus, but tastes like Heaven."
+	color = "#FFFF00"
+	adj_temp = -5
+	adj_sleepy = -3
+	caffeine = 1
+	taste_description = "a reassuring spectrum of color"
+
+/datum/reagent/drink/zorasoda/jelly/affect_ingest(var/mob/living/carbon/M, var/alien, var/removed)
+	..()
+	M.druggy = max(M.druggy, 30)
+	M.dizziness += 5
+	M.drowsyness = 0
